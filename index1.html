@@ -6,83 +6,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      background: #0f172a;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    header {
-      background: #020617;
-      padding: 15px;
+    .app {
+      background: rgba(0,0,0,0.3);
+      padding: 20px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+    }
+    h1 {
       text-align: center;
-      font-size: 22px;
-    }
-    .container {
-      padding: 15px;
-      max-width: 600px;
-      margin: auto;
     }
     input, textarea, button {
       width: 100%;
-      padding: 12px;
-      margin-top: 10px;
+      margin: 8px 0;
+      padding: 10px;
       border-radius: 8px;
       border: none;
       font-size: 16px;
     }
     button {
-      background: #22c55e;
-      color: black;
+      background: #00e676;
       cursor: pointer;
     }
     .note {
-      background: #020617;
+      background: white;
+      color: black;
       padding: 10px;
-      margin-top: 10px;
       border-radius: 8px;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
 
-<header>📝 Smart Notes</header>
+<div class="app">
+  <h1>Smart Notes</h1>
 
-<div class="container" id="loginBox">
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
+  <input id="username" placeholder="Enter your name">
   <button onclick="login()">Login</button>
-</div>
 
-<div class="container" id="notesBox" style="display:none">
-  <textarea id="noteText" placeholder="Write your note..."></textarea>
-  <button onclick="addNote()">Save Note</button>
-  <div id="notes"></div>
+  <div id="notesArea" style="display:none;">
+    <textarea id="noteText" placeholder="Write your note..."></textarea>
+    <button onclick="addNote()">Save Note</button>
+    <button onclick="voiceNote()">🎤 Voice Note</button>
+    <div id="notes"></div>
+  </div>
 </div>
 
 <script>
   function login() {
-    const u = username.value;
-    const p = password.value;
-    if (u && p) {
-      localStorage.setItem("user", u);
-      loginBox.style.display = "none";
-      notesBox.style.display = "block";
+    const name = document.getElementById("username").value;
+    if(name){
+      localStorage.setItem("user", name);
+      document.getElementById("notesArea").style.display = "block";
     }
   }
 
   function addNote() {
-    const text = noteText.value;
-    if (!text) return;
-    const div = document.createElement("div");
-    div.className = "note";
-    div.innerText = text;
-    notes.appendChild(div);
-    noteText.value = "";
+    const text = document.getElementById("noteText").value;
+    if(text){
+      const div = document.createElement("div");
+      div.className = "note";
+      div.innerText = text;
+      document.getElementById("notes").appendChild(div);
+      document.getElementById("noteText").value = "";
+    }
   }
 
-  if (localStorage.getItem("user")) {
-    loginBox.style.display = "none";
-    notesBox.style.display = "block";
+  function voiceNote(){
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Voice not supported in this browser");
+      return;
+    }
+    const rec = new webkitSpeechRecognition();
+    rec.lang = "en-US";
+    rec.onresult = e => {
+      document.getElementById("noteText").value = e.results[0][0].transcript;
+    };
+    rec.start();
   }
 </script>
 
